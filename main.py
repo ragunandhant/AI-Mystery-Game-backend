@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Depends, HTTPException
-from models import Base, User
+from model.models import Base, User
 from schema.schemas import UserSchema
 from db.database import engine,SessionLocal
 from sqlalchemy.orm import Session
