@@ -1,34 +1,20 @@
-from fastapi import FastAPI, Depends, HTTPException
-from model.models import Base, User
-from schema.schemas import UserSchema
-from db.database import engine,SessionLocal
-from sqlalchemy.orm import Session
+from fastapi import FastAPI
+import router.user
+from sql_app.database import engine
+import sql_app.models as models
+models.Base.metadata.create_all(bind=engine)
+import router
+from dotenv import load_dotenv
 
-Base.metadata.create_all(bind=engine)
+load_dotenv()
 
 app = FastAPI()
 
-
-def get_db():
-    try:
-        db = SessionLocal()
-        yield db
-    finally:
-        db.close()
+app.include_router(router.user.router)
 
 @app.get("/")
 async def home():
     return {"message": "Hello, World!"}
 
-@app.post("/adduser")
-async def add_user(request:UserSchema, db: Session = Depends(get_db)):
-    user = User(name=request.name, email=request.email, nickname=request.nickname)
-    db.add(user)
-    db.commit()
-    db.refresh(user)
-    return user
 
-@app.get("/user/{user_name}")
-async def get_users(user_name,db: Session = Depends(get_db)):
-    users = db.query(User).filter(User.name == user_name).first()
-    return users
+
